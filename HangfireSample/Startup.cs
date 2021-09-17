@@ -1,3 +1,5 @@
+using Hangfire;
+using HangfireSample.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -23,6 +25,11 @@ namespace HangfireSample
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<IEmailSender, EmailSender>();
+            services.AddHangfire(config => config.UseSqlServerStorage(Configuration.GetConnectionString("HangfireConnection")));
+
+            services.AddHangfireServer();
+
             services.AddControllersWithViews();
         }
 
@@ -41,6 +48,8 @@ namespace HangfireSample
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseHangfireDashboard("/hangfire");
 
             app.UseRouting();
 
